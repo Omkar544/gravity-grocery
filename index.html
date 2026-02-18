@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gold Grocery | Calibrated Tilt</title>
+    <title>Gold Grocery | Fast Hybrid</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes gold-spin {
@@ -12,34 +12,34 @@
         }
 
         body { 
-            overflow: hidden; 
-            touch-action: none;
-            background: #f8fafc;
+            background: #ffffff;
             margin: 0;
+            overflow-x: hidden; /* Allows normal vertical scrolling initially */
+            scroll-behavior: smooth;
         }
 
         #product-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 40px;
-            padding: 200px;
-            transition: transform 0.15s ease-out;
+            grid-template-columns: repeat(2, 1fr); /* Better for mobile display */
+            gap: 20px;
+            padding: 100px 20px;
+            transition: transform 0.1s linear; /* Ultra fast timing */
             will-change: transform;
         }
 
         .product-card {
-            perspective: 1500px;
-            width: 250px; /* Increased size */
-            height: 350px; /* Increased size */
+            perspective: 1000px;
+            width: 100%;
+            height: 280px;
         }
 
         .product-inner {
             transform-style: preserve-3d;
-            animation: gold-spin 5s linear infinite;
+            animation: gold-spin 3s linear infinite; /* Faster rotation */
             background: white;
-            border-radius: 30px;
-            border: 2px solid rgba(212, 175, 55, 0.3);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -51,107 +51,82 @@
             position: fixed !important;
             top: 50% !important;
             left: 50% !important;
-            transform: translate(-50%, -50%) scale(1.8) !important;
+            transform: translate(-50%, -50%) scale(1.5) !important;
             z-index: 100;
-            animation: none !important;
+            box-shadow: 0 0 100px rgba(0,0,0,0.2);
         }
 
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+        .motion-active {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 300vw;
+            height: 300vh;
         }
     </style>
 </head>
-<body>
+<body class="text-slate-900">
 
-    <div id="gate" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white text-center p-6">
-        <div class="text-6xl mb-4">🏆</div>
-        <h1 class="text-3xl font-black text-slate-800 mb-2">GOLD GROCERY</h1>
-        <p class="text-slate-500 mb-8">Hold your phone naturally and tap start.<br>The app will calibrate to your hand.</p>
-        <button onclick="startApp()" class="bg-yellow-500 text-white px-12 py-4 rounded-full font-bold shadow-2xl active:scale-95 transition-transform">
-            START & CALIBRATE
+    <header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md p-4 flex justify-between items-center border-b">
+        <span class="font-black text-xl text-yellow-600">GOLD SHOP</span>
+        <button id="tilt-btn" onclick="startMotion()" class="bg-black text-white text-xs px-4 py-2 rounded-full font-bold">
+            ENABLE TILT MOVE
         </button>
-    </div>
-
-    <header class="fixed top-0 w-full z-50 glass-nav p-5 flex justify-between items-center">
-        <span class="text-2xl font-black text-yellow-600 tracking-tighter">GOLD MARKET</span>
-        <div id="status" class="text-[10px] font-bold text-slate-400">WAITING...</div>
     </header>
 
-    <main class="h-screen w-screen overflow-hidden">
+    <main id="main-container">
         <div id="product-grid">
             </div>
     </main>
 
-    <footer class="fixed bottom-0 w-full glass-nav p-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-        Designed by <span class="text-yellow-600">Your Name</span>
+    <footer class="w-full p-8 text-center text-slate-400 text-xs font-bold border-t">
+        DESIGNED BY <span class="text-yellow-600 uppercase">Your Name</span>
     </footer>
 
     <script>
-        const items = [
-            "🍎", "🍌", "🍯", "🥛", "🍞", "🥚", "🍇", "💧", 
-            "🧀", "🧂", "🍐", "🍱", "🍓", "🥑", "🍍", "🥥"
-        ];
-        
+        const items = ["🍎", "🍌", "🍯", "🥛", "🍞", "🥚", "🍇", "💧", "🧀", "🧂", "🍐", "🍱", "🍓", "🥑", "🍍", "🥥", "🍿", "🍫", "🧊", "🥤"];
         const grid = document.getElementById('product-grid');
-        let baseAlpha = 0, baseBeta = 0, baseGamma = 0;
-        let isCalibrated = false;
-        let curX = 0, curY = 0;
-
-        // Build Large Cards
+        
         items.forEach((icon, i) => {
             const card = document.createElement('div');
             card.className = "product-card";
             card.onclick = function() { this.classList.toggle('zoom-focus'); };
             card.innerHTML = `
                 <div class="product-inner">
-                    <div class="text-8xl mb-6">${icon}</div>
-                    <div class="text-xl font-black text-slate-800 uppercase">Premium Item</div>
-                    <div class="text-yellow-600 font-mono text-2xl font-bold mt-2">$${(10 + i).toFixed(2)}</div>
+                    <div class="text-6xl mb-4">${icon}</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase">Premium Gold</div>
+                    <div class="text-yellow-600 font-bold">$${(5.99 + i).toFixed(2)}</div>
                 </div>`;
             grid.appendChild(card);
         });
 
-        async function startApp() {
+        let posX = 0, posY = 0;
+        let isMotionMode = false;
+
+        async function startMotion() {
             if (typeof DeviceOrientationEvent.requestPermission === 'function') {
                 const res = await DeviceOrientationEvent.requestPermission();
-                if (res === 'granted') run();
-            } else {
-                run();
+                if (res !== 'granted') return;
             }
-        }
-
-        function run() {
-            document.getElementById('gate').style.display = 'none';
-            document.getElementById('status').innerText = "CALIBRATED";
+            
+            isMotionMode = true;
+            document.body.style.overflow = "hidden"; // Stop normal scroll
+            grid.classList.add('motion-active');
+            document.getElementById('tilt-btn').innerText = "TILT ACTIVE";
             
             window.addEventListener('deviceorientation', (e) => {
-                // The first event sets the "Zero Point"
-                if (!isCalibrated) {
-                    baseBeta = e.beta;
-                    baseGamma = e.gamma;
-                    isCalibrated = true;
-                    return;
-                }
+                // Faster movement calculations
+                let speedX = e.gamma * 3; 
+                let speedY = (e.beta - 45) * 3;
 
-                // Calculate difference from how you were holding it at start
-                let diffX = e.gamma - baseGamma;
-                let diffY = e.beta - baseBeta;
+                posX -= speedX;
+                posY -= speedY;
 
-                // Deadzone to prevent vibrating
-                if (Math.abs(diffX) < 3) diffX = 0;
-                if (Math.abs(diffY) < 3) diffY = 0;
+                // Restrict movement range
+                posX = Math.max(-1000, Math.min(100, posX));
+                posY = Math.max(-1000, Math.min(100, posY));
 
-                // Move the grid
-                curX -= diffX * 2;
-                curY -= diffY * 2;
-
-                // Boundaries
-                curX = Math.max(-1200, Math.min(1200, curX));
-                curY = Math.max(-1200, Math.min(1200, curY));
-
-                grid.style.transform = `translate3d(${curX}px, ${curY}px, 0)`;
+                grid.style.transform = `translate3d(${posX}px, ${posY}px, 0)`;
             });
         }
     </script>
