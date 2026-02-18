@@ -3,30 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gold Grocery | Motion Pro</title>
+    <title>Gold Market | Auto-Scroll</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes gold-spin { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
-        @keyframes auto-zoom { 0%, 100% { transform: scale(1) rotateY(0deg); } 50% { transform: scale(1.5) rotateY(180deg); } }
+        @keyframes auto-zoom { 0%, 100% { transform: scale(1) rotateY(0deg); } 50% { transform: scale(1.3) rotateY(180deg); } }
 
-        body { background: #ffffff; margin: 0; overflow: hidden; touch-action: none; font-family: sans-serif; }
+        body { background: #ffffff; margin: 0; font-family: sans-serif; overflow-x: hidden; }
         
         #product-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 20px;
-            padding: 100px 40px;
-            transition: transform 0.05s linear; /* Ultra fast response */
-            will-change: transform;
+            padding: 100px 20px;
+            justify-items: center;
         }
 
         .product-card {
             background: #fff;
-            border-radius: 20px;
-            border: 1px solid #eee;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            padding: 20px;
+            border-radius: 25px;
+            border: 1px solid #f0f0f0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            padding: 30px 15px;
             text-align: center;
+            width: 100%;
+            max-width: 170px;
         }
 
         /* 3D Product Page Overlay */
@@ -42,8 +43,8 @@
         }
 
         .viewing-product {
-            font-size: 10rem;
-            animation: auto-zoom 4s infinite ease-in-out;
+            font-size: 12rem;
+            animation: auto-zoom 5s infinite ease-in-out;
             transform-style: preserve-3d;
         }
     </style>
@@ -51,31 +52,36 @@
 <body class="text-slate-900">
 
     <header class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md p-4 flex justify-between items-center border-b">
-        <span class="font-black text-yellow-600">GOLD MARKET</span>
-        <button onclick="requestAccess()" id="motionBtn" class="bg-yellow-500 text-white text-[10px] px-4 py-2 rounded-full font-bold uppercase">Enable Motion</button>
+        <span class="font-black text-yellow-600 text-xl tracking-tighter">GOLD MARKET</span>
+        <button onclick="requestAccess()" id="motionBtn" class="bg-yellow-500 text-white text-[10px] px-5 py-2 rounded-full font-bold uppercase tracking-widest shadow-lg">Enable Motion</button>
     </header>
 
-    <main id="main-view">
+    <main>
         <div id="product-grid">
             </div>
     </main>
 
     <div id="product-page">
-        <button onclick="closeProduct()" class="absolute top-10 right-10 text-2xl font-bold">✕ Close</button>
+        <button onclick="closeProduct()" class="absolute top-10 right-10 text-xl font-bold bg-slate-100 px-4 py-2 rounded-full">✕ Close</button>
         <div id="zoom-icon" class="viewing-product"></div>
-        <h2 id="zoom-name" class="text-3xl font-black mt-10"></h2>
-        <p class="text-yellow-600 text-xl font-bold mt-2">Premium Gold Quality</p>
+        <h2 id="zoom-name" class="text-4xl font-black mt-8 uppercase tracking-widest"></h2>
+        <div class="h-1 w-12 bg-yellow-500 mt-4 mb-2"></div>
+        <p class="text-slate-400 font-bold uppercase text-xs tracking-widest">Premium Gold Collection</p>
     </div>
 
-    <footer class="fixed bottom-0 w-full p-3 bg-white border-t text-center text-[10px] text-slate-400 font-bold uppercase">
+    <footer class="w-full p-6 bg-white border-t text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">
         Designed by <span class="text-yellow-600">Your Name</span>
     </footer>
 
     <script>
+        // Expanded Product List
         const items = [
             {n: "Apple", i: "🍎"}, {n: "Banana", i: "🍌"}, {n: "Honey", i: "🍯"}, 
             {n: "Milk", i: "🥛"}, {n: "Bread", i: "🍞"}, {n: "Egg", i: "🥚"}, 
-            {n: "Grapes", i: "🍇"}, {n: "Water", i: "💧"}
+            {n: "Grapes", i: "🍇"}, {n: "Water", i: "💧"}, {n: "Cheese", i: "🧀"},
+            {n: "Pear", i: "🍐"}, {n: "Cherry", i: "🍒"}, {n: "Peach", i: "🍑"},
+            {n: "Mango", i: "🥭"}, {n: "Pineapple", i: "🍍"}, {n: "Melon", i: "🍈"},
+            {n: "Avocado", i: "🥑"}, {n: "Corn", i: "🌽"}, {n: "Carrot", i: "🥕"}
         ];
 
         const grid = document.getElementById('product-grid');
@@ -83,15 +89,15 @@
             const div = document.createElement('div');
             div.className = "product-card";
             div.innerHTML = `
-                <div class="text-5xl mb-4">${item.i}</div>
-                <div class="font-bold text-sm mb-3 uppercase">${item.n}</div>
-                <button onclick="openProduct('${item.i}', '${item.n}')" class="bg-black text-white text-[10px] px-4 py-2 rounded-lg font-bold">VIEW PRODUCT</button>
+                <div class="text-6xl mb-4" style="animation: gold-spin 6s linear infinite">${item.i}</div>
+                <div class="font-black text-sm mb-4 uppercase tracking-tighter">${item.n}</div>
+                <button onclick="openProduct('${item.i}', '${item.n}')" class="bg-black text-white text-[9px] px-6 py-3 rounded-xl font-black uppercase">View Product</button>
             `;
             grid.appendChild(div);
         });
 
-        let posX = 0, posY = 0;
         let active = false;
+        let scrollSpeed = 0;
 
         function openProduct(icon, name) {
             document.getElementById('zoom-icon').innerText = icon;
@@ -106,30 +112,37 @@
         async function requestAccess() {
             if (typeof DeviceOrientationEvent.requestPermission === 'function') {
                 const res = await DeviceOrientationEvent.requestPermission();
-                if (res === 'granted') active = true;
-            } else { active = true; }
-            document.getElementById('motionBtn').innerText = "Active";
+                if (res === 'granted') { active = true; startLoop(); }
+            } else { active = true; startLoop(); }
+            document.getElementById('motionBtn').innerText = "Motion Active";
+            document.getElementById('motionBtn').classList.replace('bg-yellow-500', 'bg-green-500');
         }
 
         window.addEventListener('deviceorientation', (e) => {
             if (!active) return;
 
-            // Sensitivity - Reduced timing for faster feel
-            // Tilt left (gamma < 0) -> move left
-            // Tilt forward (beta > 45) -> move down
-            let tiltX = e.gamma; 
+            // Beta is front-to-back tilt (-180 to 180)
+            // Gamma is left-to-right tilt (-90 to 90)
+            
+            // Auto Vertical Scroll: Push phone UP (beta decreases) -> Scroll DOWN
+            // 45 degrees is the neutral "holding" position
             let tiltY = e.beta - 45; 
-
-            // Velocity-based movement
-            if (Math.abs(tiltX) > 5) posX -= (tiltX * 0.5);
-            if (Math.abs(tiltY) > 5) posY -= (tiltY * 0.5);
-
-            // Bounds
-            posX = Math.min(100, Math.max(-800, posX));
-            posY = Math.min(100, Math.max(-1200, posY));
-
-            grid.style.transform = `translate3d(${posX}px, ${posY}px, 0)`;
+            
+            // Slow slow scroll logic
+            if (Math.abs(tiltY) > 5) {
+                scrollSpeed = tiltY * 0.2; // Adjust 0.2 to make it slower or faster
+            } else {
+                scrollSpeed = 0;
+            }
         });
+
+        // Animation loop for smooth scrolling
+        function startLoop() {
+            if (scrollSpeed !== 0) {
+                window.scrollBy(0, scrollSpeed);
+            }
+            requestAnimationFrame(startLoop);
+        }
     </script>
 </body>
 </html>
