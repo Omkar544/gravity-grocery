@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gold Grocery | Fast Hybrid</title>
+    <title>Gold Grocery | Centered Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes gold-spin {
@@ -14,63 +14,81 @@
         body { 
             background: #ffffff;
             margin: 0;
-            overflow-x: hidden; /* Allows normal vertical scrolling initially */
-            scroll-behavior: smooth;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center; /* Horizontally center */
+        }
+
+        #main-container {
+            width: 100%;
+            max-width: 500px; /* Centers the content for a mobile feel on desktop */
+            display: flex;
+            justify-content: center;
         }
 
         #product-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* Better for mobile display */
-            gap: 20px;
-            padding: 100px 20px;
-            transition: transform 0.1s linear; /* Ultra fast timing */
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            padding: 120px 20px;
+            transition: transform 0.1s linear;
             will-change: transform;
+            justify-items: center; /* Center cards in grid cells */
         }
 
         .product-card {
-            perspective: 1000px;
-            width: 100%;
-            height: 280px;
+            perspective: 1200px;
+            width: 160px;
+            height: 240px;
         }
 
         .product-inner {
             transform-style: preserve-3d;
-            animation: gold-spin 3s linear infinite; /* Faster rotation */
+            animation: gold-spin 3s linear infinite;
             background: white;
-            border-radius: 20px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border-radius: 24px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100%;
+            width: 100%;
+        }
+
+        /* Large Product Emojis */
+        .product-emoji {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1));
         }
 
         .zoom-focus {
             position: fixed !important;
             top: 50% !important;
             left: 50% !important;
-            transform: translate(-50%, -50%) scale(1.5) !important;
+            transform: translate(-50%, -50%) scale(1.8) !important;
             z-index: 100;
-            box-shadow: 0 0 100px rgba(0,0,0,0.2);
+            box-shadow: 0 0 100px rgba(212, 175, 55, 0.3);
         }
 
+        /* When tilt is enabled, allow the grid to move off-center */
         .motion-active {
             position: fixed;
             top: 0;
             left: 0;
-            width: 300vw;
-            height: 300vh;
+            width: 200vw;
+            height: 200vh;
         }
     </style>
 </head>
 <body class="text-slate-900">
 
-    <header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md p-4 flex justify-between items-center border-b">
-        <span class="font-black text-xl text-yellow-600">GOLD SHOP</span>
-        <button id="tilt-btn" onclick="startMotion()" class="bg-black text-white text-xs px-4 py-2 rounded-full font-bold">
-            ENABLE TILT MOVE
+    <header class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-xl p-5 flex justify-between items-center border-b border-slate-100">
+        <span class="font-black text-xl tracking-tighter text-yellow-600">GOLD MARKET</span>
+        <button id="tilt-btn" onclick="startMotion()" class="bg-yellow-500 text-white text-[10px] px-5 py-2 rounded-full font-black uppercase tracking-widest shadow-lg shadow-yellow-200">
+            Enable Tilt Move
         </button>
     </header>
 
@@ -79,50 +97,60 @@
             </div>
     </main>
 
-    <footer class="w-full p-8 text-center text-slate-400 text-xs font-bold border-t">
+    <footer class="fixed bottom-0 w-full p-4 bg-white/80 backdrop-blur-md text-center text-slate-400 text-[10px] font-bold border-t z-50">
         DESIGNED BY <span class="text-yellow-600 uppercase">Your Name</span>
     </footer>
 
     <script>
-        const items = ["🍎", "🍌", "🍯", "🥛", "🍞", "🥚", "🍇", "💧", "🧀", "🧂", "🍐", "🍱", "🍓", "🥑", "🍍", "🥥", "🍿", "🍫", "🧊", "🥤"];
+        const groceryItems = [
+            "🍎", "🍌", "🍯", "🥛", "🍞", "🥚", "🍇", "💧", 
+            "🧀", "🧂", "🍐", "🍱", "🍓", "🥑", "🍍", "🥥"
+        ];
+        
         const grid = document.getElementById('product-grid');
         
-        items.forEach((icon, i) => {
+        groceryItems.forEach((icon, i) => {
             const card = document.createElement('div');
             card.className = "product-card";
             card.onclick = function() { this.classList.toggle('zoom-focus'); };
             card.innerHTML = `
                 <div class="product-inner">
-                    <div class="text-6xl mb-4">${icon}</div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase">Premium Gold</div>
-                    <div class="text-yellow-600 font-bold">$${(5.99 + i).toFixed(2)}</div>
+                    <div class="product-emoji">${icon}</div>
+                    <div class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Premium</div>
+                    <div class="text-yellow-600 font-bold text-lg">$${(9.50 + i).toFixed(2)}</div>
                 </div>`;
             grid.appendChild(card);
         });
 
         let posX = 0, posY = 0;
-        let isMotionMode = false;
+        let isMotionActive = false;
 
         async function startMotion() {
+            // Permission for iOS 13+
             if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                const res = await DeviceOrientationEvent.requestPermission();
-                if (res !== 'granted') return;
+                const response = await DeviceOrientationEvent.requestPermission();
+                if (response !== 'granted') return;
             }
             
-            isMotionMode = true;
-            document.body.style.overflow = "hidden"; // Stop normal scroll
+            isMotionActive = true;
+            document.body.style.overflow = "hidden";
             grid.classList.add('motion-active');
-            document.getElementById('tilt-btn').innerText = "TILT ACTIVE";
-            
+            document.getElementById('tilt-btn').innerText = "Tilt Active";
+            document.getElementById('tilt-btn').classList.replace('bg-yellow-500', 'bg-green-500');
+
             window.addEventListener('deviceorientation', (e) => {
-                // Faster movement calculations
-                let speedX = e.gamma * 3; 
-                let speedY = (e.beta - 45) * 3;
+                // Calibrate: (e.beta - 45) assumes the user holds phone at 45 degree angle
+                let moveX = e.gamma * 2.5; 
+                let moveY = (e.beta - 45) * 2.5;
 
-                posX -= speedX;
-                posY -= speedY;
+                // Smoothing and Deadzone
+                if (Math.abs(moveX) < 2) moveX = 0;
+                if (Math.abs(moveY) < 2) moveY = 0;
 
-                // Restrict movement range
+                posX -= moveX;
+                posY -= moveY;
+
+                // Constraints to keep products visible
                 posX = Math.max(-1000, Math.min(100, posX));
                 posY = Math.max(-1000, Math.min(100, posY));
 
