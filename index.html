@@ -3,155 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gold Market | Hands-Free Pro</title>
+    <title>Gold Market | Voice AI Omkar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes gold-spin { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
-        @keyframes pulse-gold { 0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(212, 175, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
+        @keyframes listening { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 1; } }
 
-        body { 
-            background: #fff; 
-            margin: 0; 
-            transition: background 0.5s ease; /* BG changes when you move fast */
-        }
+        body { background: #fdfdfd; margin: 0; font-family: sans-serif; overflow-x: hidden; }
         
         #product-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
-            padding: 110px 15px;
+            padding: 100px 15px;
             transition: transform 0.1s linear;
         }
 
         .product-card {
             background: white;
-            border-radius: 25px;
-            border: 1px solid #f1f1f1;
+            border-radius: 20px;
+            border: 1px solid #eee;
             padding: 20px 10px;
             text-align: center;
-            transition: all 0.3s ease;
+            transition: all 0.5s ease;
         }
 
-        /* Highlighting the 'Focused' product without touch */
-        .focused {
-            border-color: #eab308;
-            transform: scale(1.05);
-            animation: pulse-gold 2s infinite;
+        .search-highlight {
+            border: 4px solid #eab308 !important;
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(234, 179, 8, 0.4);
         }
 
         #voice-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(255,255,255,0.95);
+            background: rgba(255,255,255,0.98);
             z-index: 2000;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-weight: 900;
+        }
+
+        .mic-icon {
+            width: 80px;
+            height: 80px;
+            background: #eab308;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            animation: listening 1.5s infinite;
         }
     </style>
 </head>
 <body class="text-slate-900">
 
     <div id="voice-overlay">
-        <div class="text-6xl mb-4 animate-bounce">🎙️</div>
-        <div class="text-2xl text-yellow-600 uppercase tracking-widest">SHAKE DETECTED</div>
-        <p class="text-slate-400 mt-2">Listening for product name...</p>
+        <div class="mic-icon">🎤</div>
+        <h2 class="text-2xl font-black mt-6 uppercase tracking-widest text-yellow-600">Listening...</h2>
+        <p id="speech-status" class="text-slate-400 mt-2 font-bold">Speak the product name</p>
     </div>
 
     <header class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md p-4 flex justify-between items-center border-b">
         <div class="flex flex-col">
-            <span class="font-black text-yellow-600 text-lg tracking-tighter">GOLD MARKET</span>
-            <span class="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Motion & Shake Controlled</span>
+            <span class="font-black text-yellow-600 text-lg uppercase tracking-tighter">Gold Market</span>
+            <span class="text-[7px] font-bold text-slate-400">SHAKE TO TALK</span>
         </div>
-        <button onclick="requestAccess()" id="motionBtn" class="bg-black text-white text-[10px] px-5 py-2 rounded-full font-black uppercase tracking-widest">Activate Sensors</button>
+        <button onclick="requestAccess()" id="motionBtn" class="bg-black text-white text-[10px] px-5 py-2 rounded-full font-black uppercase tracking-widest">Start Systems</button>
     </header>
 
-    <main id="main-content">
-        <div id="product-grid">
-            </div>
+    <main>
+        <div id="product-grid"></div>
     </main>
 
     <footer class="w-full p-10 bg-white border-t text-center">
-        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Market Master</p>
+        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Developed By</p>
         <p class="text-yellow-600 font-black text-xl">omkargore544</p>
     </footer>
 
     <script>
-        const products = [
-            {n: "Fresh Apple", i: "🍎", p: 180}, {n: "iPhone 16", i: "📱", p: 119900},
-            {n: "Amul Butter", i: "🧈", p: 550}, {n: "Silk Saree", i: "👘", p: 12500},
-            {n: "Smart TV", i: "📺", p: 45000}, {n: "Coffee Bean", i: "☕", p: 890},
-            {n: "Luxury Watch", i: "⌚", p: 15000}, {n: "Basmati Rice", i: "🌾", p: 210}
-        ];
+        const categories = {
+            Groceries: ["🍎 Apple", "🍌 Banana", "🥛 Milk", "🍞 Bread", "🥚 Egg", "🍯 Honey", "🍇 Grapes", "🧀 Cheese", "🥔 Potato", "🧅 Onion", "🧄 Garlic", "🥕 Carrot", "🍅 Tomato", "🥭 Mango", "🍍 Pineapple", "🍉 Melon", "🍓 Berry", "🥑 Avocado", "🌽 Corn", "🥦 Broccoli"],
+            Electronics: ["📱 iPhone", "💻 Laptop", "🎧 Headphone", "⌚ Watch", "📺 TV", "🎮 Console", "📷 Camera", "🔋 Battery", "🖱️ Mouse", "⌨️ Keyboard", "🔌 Cable", "🎙️ Mic", "💿 Disc", "🖨️ Printer", "📱 Tablet"],
+            Fashion: ["👟 Shoe", "👕 Shirt", "👗 Dress", "👓 Glass", "👜 Bag", "👒 Hat", "💍 Ring", "💄 Makeup", "🧪 Perfume", "🧥 Coat"]
+        };
 
         const grid = document.getElementById('product-grid');
-        products.forEach(item => {
-            const div = document.createElement('div');
-            div.className = "product-card";
-            div.innerHTML = `
-                <div class="text-6xl my-4" style="animation: gold-spin 4s linear infinite">${item.i}</div>
-                <div class="font-bold text-xs text-slate-400 uppercase">${item.n}</div>
-                <div class="text-lg font-black text-slate-800 mt-1">₹${item.p.toLocaleString('en-IN')}</div>
-            `;
-            grid.appendChild(div);
+        const allItems = [];
+
+        Object.entries(categories).forEach(([cat, list]) => {
+            list.forEach(item => {
+                const name = item.split(' ')[1];
+                const icon = item.split(' ')[0];
+                const price = Math.floor(Math.random() * 2000) + 50;
+                allItems.push({ name, icon, price });
+
+                const div = document.createElement('div');
+                div.className = "product-card";
+                div.id = `prod-${name.toLowerCase()}`;
+                div.innerHTML = `
+                    <div class="text-5xl my-4" style="animation: gold-spin 6s linear infinite">${icon}</div>
+                    <div class="font-bold text-[10px] text-slate-400 uppercase">${name}</div>
+                    <div class="text-lg font-black text-slate-800">₹${price.toLocaleString('en-IN')}</div>
+                `;
+                grid.appendChild(div);
+            });
         });
 
         let active = false;
         let lastX, lastY, lastZ;
-        let moveThreshold = 15; // Speed required to trigger "Shake"
 
         async function requestAccess() {
             if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                const res = await DeviceOrientationEvent.requestPermission();
-                if (res === 'granted') { 
-                    active = true;
-                    startMotionListeners();
-                }
-            } else { active = true; startMotionListeners(); }
-            document.getElementById('motionBtn').innerText = "SYSTEM LIVE";
-            document.getElementById('motionBtn').style.background = "#22c55e";
+                const res1 = await DeviceOrientationEvent.requestPermission();
+                const res2 = await DeviceMotionEvent.requestPermission();
+                if (res1 === 'granted' && res2 === 'granted') start();
+            } else { start(); }
         }
 
-        function startMotionListeners() {
-            // 1. TILT SCROLLING (Beta/Gamma)
-            window.addEventListener('deviceorientation', (e) => {
-                let tiltY = (e.beta - 45) * 0.4;
-                let tiltX = e.gamma * 0.3;
-                window.scrollBy(0, tiltY);
-                grid.style.transform = `translateX(${-tiltX}px)`;
+        function start() {
+            active = true;
+            document.getElementById('motionBtn').innerText = "AI ACTIVE";
+            document.getElementById('motionBtn').style.backgroundColor = "#22c55e";
 
-                // Dynamic background: Color shifts slightly when you tilt
-                document.body.style.backgroundColor = `hsl(${200 + tiltX}, 20%, 98%)`;
-            });
-
-            // 2. SHAKE DETECTION (Accelerometer)
             window.addEventListener('devicemotion', (e) => {
                 let acc = e.accelerationIncludingGravity;
                 let deltaX = Math.abs(acc.x - lastX);
-                
-                if (deltaX > 25) { // If user shakes phone horizontally
-                    triggerVoiceSearch();
-                }
+                if (deltaX > 25) startVoiceSearch();
                 lastX = acc.x;
+            });
+
+            window.addEventListener('deviceorientation', (e) => {
+                let tiltY = (e.beta - 45) * 0.4;
+                window.scrollBy(0, tiltY);
             });
         }
 
-        function triggerVoiceSearch() {
+        function startVoiceSearch() {
             const overlay = document.getElementById('voice-overlay');
+            const status = document.getElementById('speech-status');
             overlay.style.display = 'flex';
-            setTimeout(() => { overlay.style.display = 'none'; }, 3000);
+
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'en-IN';
             
-            // Here we would integrate Web Speech API
-            if ('webkitSpeechRecognition' in window) {
-                const recognition = new webkitSpeechRecognition();
-                recognition.start();
-                recognition.onresult = (event) => {
-                    const speechToText = event.results[0][0].transcript;
-                    alert("Searching for: " + speechToText);
-                    overlay.style.display = 'none';
-                };
+            recognition.onstart = () => { status.innerText = "I'm Listening..."; };
+            
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript.toLowerCase();
+                overlay.style.display = 'none';
+                searchProduct(transcript);
+            };
+
+            recognition.onerror = () => { overlay.style.display = 'none'; };
+            recognition.start();
+        }
+
+        function searchProduct(query) {
+            // Remove previous highlights
+            document.querySelectorAll('.product-card').forEach(c => c.classList.remove('search-highlight'));
+            
+            const target = allItems.find(item => query.includes(item.name.toLowerCase()));
+            if (target) {
+                const el = document.getElementById(`prod-${target.name.toLowerCase()}`);
+                el.classList.add('search-highlight');
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                alert("Sorry, I couldn't find " + query);
             }
         }
     </script>
