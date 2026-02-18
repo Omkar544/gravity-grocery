@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravity Grocery | Tilt to Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes slow-rotate {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+        .product-3d {
+            transform-style: preserve-3d;
+            transition: all 0.5s ease-out;
+        }
+        .product-3d:hover, .auto-rotate {
+            animation: slow-rotate 8s linear infinite;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        body { touch-action: none; overflow: hidden; } /* Prevents accidental touch scrolling */
+    </style>
+</head>
+<body class="bg-slate-900 text-white font-sans">
+
+    <div id="welcome" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black bg-opacity-90 p-6 text-center">
+        <h1 class="text-4xl font-bold mb-4 text-yellow-500">Gravity Grocery</h1>
+        <p class="mb-6 text-gray-300">Tilt your phone left, right, up, or down to navigate the store.</p>
+        <button onclick="startExperience()" class="bg-yellow-500 text-black px-8 py-3 rounded-full font-bold hover:scale-105 transition">Start Experience</button>
+    </div>
+
+    <header class="fixed top-0 w-full z-40 glass p-4 flex justify-between items-center px-8">
+        <div class="text-2xl font-black italic tracking-tighter text-yellow-500">GOLD-GROCERY</div>
+        <nav class="hidden md:flex space-x-8 font-medium">
+            <a href="#" class="hover:text-yellow-500">Home</a>
+            <a href="#" class="hover:text-yellow-500">Fruits</a>
+            <a href="#" class="hover:text-yellow-500">Vegetables</a>
+            <a href="#" class="hover:text-yellow-500">Premium</a>
+        </nav>
+        <div class="text-sm border border-yellow-500 px-3 py-1 rounded">Tilt Mode: ON</div>
+    </header>
+
+    <main id="viewport" class="h-screen w-screen overflow-hidden pt-24">
+        <div id="content-grid" class="flex flex-wrap gap-10 p-20 transition-transform duration-200 ease-out" style="width: 200vw; height: 200vh;">
+            
+            <script>
+                const products = [
+                    {name: "Golden Apple", price: "$5", img: "🍎"},
+                    {name: "Organic Banana", price: "$2", img: "🍌"},
+                    {name: "Premium Milk", price: "$4", img: "🥛"},
+                    {name: "Golden Bread", price: "$3", img: "🍞"},
+                    {name: "Royal Honey", price: "$12", img: "🍯"},
+                    {name: "Fresh Grapes", price: "$6", img: "🍇"},
+                    {name: "Golden Egg", price: "$10", img: "🥚"},
+                    {name: "Diamond Water", price: "$50", img: "💎"}
+                ];
+
+                const grid = document.getElementById('content-grid');
+                products.forEach(p => {
+                    grid.innerHTML += `
+                        <div class="product-3d glass p-8 rounded-3xl w-64 h-80 flex flex-col items-center justify-center text-center shadow-2xl auto-rotate">
+                            <div class="text-7xl mb-4 drop-shadow-[0_0_15px_rgba(255,215,0,0.8)] scale-110">${p.img}</div>
+                            <h3 class="text-xl font-bold">${p.name}</h3>
+                            <p class="text-yellow-500 font-mono text-lg mt-2">${p.price}</p>
+                            <button class="mt-4 bg-white text-black px-4 py-2 rounded-lg text-sm font-bold">Zoom Details</button>
+                        </div>
+                    `;
+                });
+            </script>
+        </div>
+    </main>
+
+    <footer class="fixed bottom-0 w-full glass p-4 text-center text-sm text-gray-400">
+        &copy; 2026 Designed by <span class="text-yellow-500 font-bold">Your Name</span> | Interactive Gravity Grid
+    </footer>
+
+    <script>
+        let posX = 0;
+        let posY = 0;
+        const grid = document.getElementById('content-grid');
+
+        function startExperience() {
+            // Request permission for iOS
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response == 'granted') {
+                            initMotion();
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                initMotion();
+            }
+            document.getElementById('welcome').style.display = 'none';
+        }
+
+        function initMotion() {
+            window.addEventListener('deviceorientation', (event) => {
+                // gamma is left-to-right tilt (-90 to 90)
+                // beta is front-to-back tilt (-180 to 180)
+                let tiltX = event.gamma; 
+                let tiltY = event.beta;
+
+                // Sensitivity adjustment
+                posX += tiltX * 0.5;
+                posY += tiltY * 0.5;
+
+                // Boundaries (Prevent scrolling infinitely)
+                posX = Math.max(-1000, Math.min(100, posX));
+                posY = Math.max(-1000, Math.min(100, posY));
+
+                // Apply movement
+                grid.style.transform = `translate(${posX}px, ${posY}px)`;
+            });
+        }
+    </script>
+</body>
+</html>
