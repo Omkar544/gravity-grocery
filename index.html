@@ -3,89 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gold Market | Voice AI Bot</title>
+    <title>Gold Market | Fix Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes gold-spin { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
-        @keyframes wave { 0%, 100% { height: 10px; } 50% { height: 40px; } }
-        
         body { background: #fdfdfd; margin: 0; font-family: sans-serif; overflow-x: hidden; }
-        
-        #product-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            padding: 100px 15px;
-            transition: transform 0.1s linear;
-        }
-
-        .product-card {
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #eee;
-            padding: 20px 10px;
-            text-align: center;
-            transition: all 0.5s ease;
-        }
-
-        #bot-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(255,255,255,0.98);
-            z-index: 2000;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .voice-wave { display: flex; align-items: center; gap: 5px; height: 50px; }
-        .bar { width: 6px; background: #eab308; border-radius: 3px; animation: wave 1s infinite ease-in-out; }
-
-        .search-focus {
-            border: 4px solid #eab308 !important;
-            transform: scale(1.1) rotate(2deg);
-            box-shadow: 0 0 30px rgba(234, 179, 8, 0.3);
-        }
+        #product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 100px 15px; transition: transform 0.1s linear; }
+        .product-card { background: white; border-radius: 20px; border: 1px solid #eee; padding: 20px 10px; text-align: center; transition: all 0.5s ease; }
+        #bot-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.98); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; }
+        .search-focus { border: 4px solid #eab308 !important; transform: scale(1.1) rotate(2deg); box-shadow: 0 0 30px rgba(234, 179, 8, 0.3); }
     </style>
 </head>
 <body class="text-slate-900">
 
     <div id="bot-overlay">
-        <div class="voice-wave">
-            <div class="bar" style="animation-delay: 0.1s"></div>
-            <div class="bar" style="animation-delay: 0.2s"></div>
-            <div class="bar" style="animation-delay: 0.3s"></div>
-            <div class="bar" style="animation-delay: 0.4s"></div>
-            <div class="bar" style="animation-delay: 0.5s"></div>
-        </div>
-        <h2 id="bot-status" class="text-2xl font-black mt-8 text-yellow-600 uppercase">AI Bot Active</h2>
-        <p id="bot-subtext" class="text-slate-400 mt-2 font-bold italic">Listening for product name...</p>
+        <div class="text-6xl animate-bounce">🎙️</div>
+        <h2 id="bot-status" class="text-2xl font-black mt-8 text-yellow-600 uppercase">AI Bot Listening</h2>
+        <p id="bot-subtext" class="text-slate-400 mt-2 font-bold italic">Say something like "Milk" or "Apple"</p>
     </div>
 
     <header class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md p-4 flex justify-between items-center border-b">
-        <div class="flex flex-col">
-            <span class="font-black text-yellow-600 text-lg uppercase tracking-tighter">Gold Market</span>
-            <span class="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Shake 2 Times to Talk</span>
-        </div>
-        <button onclick="requestAccess()" id="mainBtn" class="bg-black text-white text-[10px] px-6 py-2 rounded-full font-black uppercase tracking-widest">Start AI Bot</button>
+        <span class="font-black text-yellow-600">GOLD MARKET</span>
+        <button onclick="requestAccess()" id="mainBtn" class="bg-black text-white text-[10px] px-6 py-2 rounded-full font-black">START AI</button>
     </header>
 
     <main><div id="product-grid"></div></main>
 
-    <footer class="w-full p-10 bg-white border-t text-center">
-        <p class="text-yellow-600 font-black text-xl tracking-tighter">omkargore544</p>
-    </footer>
+    <footer class="w-full p-10 bg-white border-t text-center font-black text-yellow-600">omkargore544</footer>
 
     <script>
         const items = [
             {n:"Apple", i:"🍎", p:150}, {n:"Milk", i:"🥛", p:66}, {n:"Bread", i:"🍞", p:45},
-            {n:"Honey", i:"🍯", p:450}, {n:"Banana", i:"🍌", p:60}, {n:"Egg", i:"🥚", p:10},
-            {n:"iPhone", i:"📱", p:79900}, {n:"Watch", i:"⌚", p:25000}, {n:"Laptop", i:"💻", p:85000},
-            {n:"Grapes", i:"🍇", p:120}, {n:"Potato", i:"🥔", p:30}, {n:"Onion", i:"🧅", p:40},
-            {n:"Mango", i:"🥭", p:200}, {n:"Shoes", i:"👟", p:4500}, {n:"Shirt", i:"👕", p:1200},
-            {n:"Water", i:"💧", p:20}, {n:"Cheese", i:"🧀", p:350}, {n:"Rice", i:"🌾", p:80},
-            {n:"Coffee", i:"☕", p:250}, {n:"Cake", i:"🍰", p:600}
+            {n:"Honey", i:"🍯", p:450}, {n:"Banana", i:"🍌", p:60}, {n:"Egg", i:"🥚", p:10}
         ];
 
         const grid = document.getElementById('product-grid');
@@ -93,11 +42,7 @@
             const div = document.createElement('div');
             div.className = "product-card";
             div.id = `item-${item.n.toLowerCase()}`;
-            div.innerHTML = `
-                <div class="text-6xl my-4" style="animation: gold-spin 6s linear infinite">${item.i}</div>
-                <div class="font-bold text-xs text-slate-400 uppercase tracking-widest">${item.n}</div>
-                <div class="text-lg font-black text-slate-900 mt-1">₹${item.p.toLocaleString('en-IN')}</div>
-            `;
+            div.innerHTML = `<div class="text-6xl my-4">${item.i}</div><div class="font-bold text-xs uppercase text-slate-400">${item.n}</div><div class="text-lg font-black mt-1">₹${item.p}</div>`;
             grid.appendChild(div);
         });
 
@@ -119,20 +64,15 @@
         function initSensors() {
             window.addEventListener('devicemotion', (e) => {
                 let acc = e.accelerationIncludingGravity;
-                if (!acc) return;
                 if (Math.abs(acc.x) > 20) {
                     let now = Date.now();
                     if (now - lastShakeTime > 500) {
                         shakeCount++;
                         lastShakeTime = now;
-                        if (shakeCount >= 2) {
-                            shakeCount = 0;
-                            startVoiceBot();
-                        }
+                        if (shakeCount >= 2) { shakeCount = 0; startVoiceBot(); }
                     }
                 }
             });
-
             window.addEventListener('deviceorientation', (e) => {
                 if(active) window.scrollBy(0, (e.beta - 45) * 0.4);
             });
@@ -155,21 +95,26 @@
             const subtext = document.getElementById('bot-subtext');
             overlay.style.display = 'flex';
             
-            speak("Which product do you want?", () => {
+            speak("Which product?", () => {
                 rec.start();
-                console.log("Recognition started...");
+                console.log("Listening...");
             });
 
             rec.onresult = (event) => {
                 const query = event.results[0][0].transcript.toLowerCase();
                 subtext.innerText = "Heard: " + query;
-                console.log("Result received:", query);
                 
-                // FIXED: Better matching logic
-                const found = items.find(i => query.includes(i.n.toLowerCase()));
+                // NEW SEARCH LOGIC: Loops through items and checks if query contains the name
+                let found = null;
+                for (let item of items) {
+                    if (query.indexOf(item.n.toLowerCase()) !== -1) {
+                        found = item;
+                        break;
+                    }
+                }
                 
                 if (found) {
-                    speak("Showing you " + found.n, () => {
+                    speak("Showing " + found.n, () => {
                         overlay.style.display = 'none';
                         const el = document.getElementById(`item-${found.n.toLowerCase()}`);
                         document.querySelectorAll('.product-card').forEach(c => c.classList.remove('search-focus'));
@@ -177,16 +122,13 @@
                         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     });
                 } else {
-                    speak("I didn't find " + query, () => {
+                    speak("No item found for " + query, () => {
                         setTimeout(() => overlay.style.display = 'none', 1500);
                     });
                 }
             };
 
-            rec.onerror = (event) => { 
-                console.error("Recognition error", event.error);
-                overlay.style.display = 'none'; 
-            };
+            rec.onerror = () => { overlay.style.display = 'none'; };
         }
     </script>
 </body>
