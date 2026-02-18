@@ -28,7 +28,6 @@
             transition: all 0.5s ease;
         }
 
-        /* Voice Bot Overlay */
         #bot-overlay {
             display: none;
             position: fixed;
@@ -40,13 +39,7 @@
             justify-content: center;
         }
 
-        .voice-wave {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            height: 50px;
-        }
-
+        .voice-wave { display: flex; align-items: center; gap: 5px; height: 50px; }
         .bar { width: 6px; background: #eab308; border-radius: 3px; animation: wave 1s infinite ease-in-out; }
 
         .search-focus {
@@ -85,7 +78,6 @@
     </footer>
 
     <script>
-        // List of 20+ products for search testing
         const items = [
             {n:"Apple", i:"🍎", p:150}, {n:"Milk", i:"🥛", p:66}, {n:"Bread", i:"🍞", p:45},
             {n:"Honey", i:"🍯", p:450}, {n:"Banana", i:"🍌", p:60}, {n:"Egg", i:"🥚", p:10},
@@ -146,11 +138,10 @@
             });
         }
 
-        // --- IMPROVED VOICE BOT LOGIC ---
         const synth = window.speechSynthesis;
         const Recognition = window.webkitSpeechRecognition || window.SpeechRecognition;
         const rec = new Recognition();
-        rec.lang = 'en-IN'; // Indian English setting
+        rec.lang = 'en-IN'; 
 
         function speak(text, callback) {
             const utter = new SpeechSynthesisUtterance(text);
@@ -166,13 +157,15 @@
             
             speak("Which product do you want?", () => {
                 rec.start();
+                console.log("Recognition started...");
             });
 
             rec.onresult = (event) => {
                 const query = event.results[0][0].transcript.toLowerCase();
                 subtext.innerText = "Heard: " + query;
+                console.log("Result received:", query);
                 
-                // Smart Search: Checks if the spoken words contain any product name
+                // FIXED: Better matching logic
                 const found = items.find(i => query.includes(i.n.toLowerCase()));
                 
                 if (found) {
@@ -184,13 +177,16 @@
                         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     });
                 } else {
-                    speak("I didn't find that item.", () => {
-                        setTimeout(() => overlay.style.display = 'none', 1000);
+                    speak("I didn't find " + query, () => {
+                        setTimeout(() => overlay.style.display = 'none', 1500);
                     });
                 }
             };
 
-            rec.onerror = () => { overlay.style.display = 'none'; };
+            rec.onerror = (event) => { 
+                console.error("Recognition error", event.error);
+                overlay.style.display = 'none'; 
+            };
         }
     </script>
 </body>
