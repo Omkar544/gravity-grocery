@@ -3,34 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gold Grocery | Light Edition</title>
+    <title>Gold Grocery | Infinite Tilt</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 3D Gold Rotation Animation */
         @keyframes gold-spin {
             0% { transform: rotateY(0deg) rotateX(5deg); }
             100% { transform: rotateY(360deg) rotateX(5deg); }
         }
-
         .product-card {
             perspective: 1200px;
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: transform 0.1s ease-out; /* Snappy response */
         }
-
         .product-inner {
             transform-style: preserve-3d;
-            animation: gold-spin 10s linear infinite;
+            animation: gold-spin 8s linear infinite;
         }
-
-        /* Light Mode Glassmorphism */
         .glass-light {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(212, 175, 55, 0.3);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         }
-
-        /* Zoom Overlay Effect */
         .zoom-focus {
             position: fixed !important;
             top: 50% !important;
@@ -38,117 +31,102 @@
             transform: translate(-50%, -50%) scale(2.2) !important;
             z-index: 100;
             background: white !important;
-            width: 320px;
-            height: 420px;
+            width: 300px;
+            height: 400px;
             border-radius: 30px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 50px 100px rgba(0,0,0,0.3);
         }
-
         body { 
             overflow: hidden; 
             touch-action: none;
-            /* Premium Light Gradient */
-            background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+            background: #f8fafc;
             color: #1e293b;
+        }
+        #product-grid {
+            will-change: transform;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr); /* 6 columns wide */
+            gap: 40px;
+            padding: 150px;
         }
     </style>
 </head>
 <body>
 
     <div id="sensor-gate" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white p-10 text-center">
-        <div class="text-6xl mb-6">✨</div>
-        <h1 class="text-3xl font-black text-yellow-600 mb-4 uppercase tracking-widest">Premium Grocery</h1>
-        <p class="text-slate-500 mb-8 font-medium">Tilt your phone to explore the aisle.<br>Tap any product to inspect in 3D.</p>
-        <button onclick="enableSensors()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-12 py-4 rounded-full font-bold text-lg shadow-lg shadow-yellow-200 transition-transform active:scale-95">
-            START SHOPPING
-        </button>
+        <h1 class="text-3xl font-black text-yellow-600 mb-2 uppercase">Infinite Market</h1>
+        <p class="text-slate-500 mb-8">Move phone to scroll • Tap to zoom</p>
+        <button onclick="enableSensors()" class="bg-yellow-500 text-white px-10 py-4 rounded-full font-bold shadow-xl active:scale-95 transition">ENTER SHOP</button>
     </div>
 
-    <header class="fixed top-0 w-full z-50 glass-light px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 bg-yellow-500 rounded-full"></div>
-            <span class="text-xl font-black tracking-tighter text-slate-800">GOLD GROCERY</span>
-        </div>
-        <nav class="hidden md:flex space-x-6 text-sm font-bold uppercase tracking-widest text-slate-600">
-            <a href="#" class="hover:text-yellow-600 transition">Market</a>
-            <a href="#" class="hover:text-yellow-600 transition">Deals</a>
-            <a href="#" class="hover:text-yellow-600 transition">About</a>
-        </nav>
-        <div class="bg-yellow-100 text-yellow-700 px-4 py-1 rounded-full text-xs font-bold border border-yellow-200">
-            SENSOR MODE
-        </div>
+    <header class="fixed top-0 w-full z-50 glass-light px-8 py-4 flex justify-between items-center">
+        <span class="text-xl font-black text-yellow-600">GOLD GROCERY</span>
+        <div class="text-[10px] font-bold bg-yellow-100 px-3 py-1 rounded">GYRO-NAVIGATION ACTIVE</div>
     </header>
 
-    <main id="stage" class="relative h-screen w-screen overflow-hidden">
-        <div id="product-grid" class="absolute flex flex-wrap content-start gap-12 p-32 transition-transform duration-300 ease-out" style="width: 300vw; height: 300vh;">
+    <main id="stage" class="h-screen w-screen overflow-hidden">
+        <div id="product-grid">
             </div>
     </main>
 
-    <footer class="fixed bottom-0 w-full glass-light py-3 text-center z-50">
-        <p class="text-xs tracking-widest text-slate-500 uppercase">
-            Designed by <span class="text-yellow-600 font-extrabold">YOUR NAME</span> &copy; 2026
-        </p>
+    <footer class="fixed bottom-0 w-full glass-light py-3 text-center z-50 text-[10px] tracking-widest text-slate-400 uppercase">
+        Designed by <span class="text-yellow-600 font-bold">YOUR NAME</span>
     </footer>
 
     <script>
-        const groceryItems = [
-            { name: "Golden Apple", price: "$4.99", icon: "🍎" },
-            { name: "Premium Milk", price: "$3.50", icon: "🥛" },
-            { name: "Organic Banana", price: "$1.20", icon: "🍌" },
-            { name: "Royal Honey", price: "$15.00", icon: "🍯" },
-            { name: "Artisan Bread", price: "$5.99", icon: "🍞" },
-            { name: "Golden Egg", price: "$0.99", icon: "🥚" },
-            { name: "Fresh Grapes", price: "$7.25", icon: "🍇" },
-            { name: "Pure Water", price: "$2.00", icon: "💧" },
-            { name: "Luxury Cheese", price: "$22.00", icon: "🧀" },
-            { name: "Diamond Salt", price: "$10.00", icon: "🧂" },
-            { name: "Gold Pear", price: "$6.50", icon: "🍐" },
-            { name: "Caviar", price: "$99.00", icon: "🍱" }
+        const items = [
+            {n:"Golden Apple", i:"🍎", p:"$4"}, {n:"Organic Banana", i:"🍌", p:"$2"},
+            {n:"Royal Honey", i:"🍯", p:"$15"}, {n:"Premium Milk", i:"🥛", p:"$5"},
+            {n:"Gold Bread", i:"🍞", p:"$6"}, {n:"Luxury Egg", i:"🥚", p:"$1"},
+            {n:"Fresh Grapes", i:"🍇", p:"$8"}, {n:"Diamond Water", i:"💧", p:"$10"},
+            {n:"Gold Pear", i:"🍐", p:"$7"}, {n:"Premium Cheese", i:"🧀", p:"$12"},
+            {n:"Sushi Gold", i:"🍣", p:"$25"}, {n:"Gold Cherry", i:"🍒", p:"$9"},
+            {n:"Melon Royal", i:"🍈", p:"$14"}, {n:"Gold Carrot", i:"🥕", p:"$3"},
+            {n:"Luxury Peach", i:"🍑", p:"$6"}, {n:"Gold Pineapple", i:"🍍", p:"$18"},
+            {n:"Ruby Tomato", i:"🍅", p:"$4"}, {n:"Gold Avocado", i:"🥑", p:"$11"},
+            {n:"Crown Broccoli", i:"🥦", p:"$5"}, {n:"Gold Garlic", i:"🧄", p:"$2"},
+            {n:"Royal Potato", i:"🥔", p:"$3"}, {n:"Gold Corn", i:"🌽", p:"$4"},
+            {n:"Emerald Kiwi", i:"🥝", p:"$7"}, {n:"Gold Mango", i:"🥭", p:"$12"}
         ];
 
         const grid = document.getElementById('product-grid');
-
-        groceryItems.forEach(item => {
-            const card = document.createElement('div');
-            card.className = "product-card w-64 h-80 cursor-pointer";
-            card.onclick = function() { this.classList.toggle('zoom-focus'); };
-            
-            card.innerHTML = `
-                <div class="product-inner glass-light h-full w-full rounded-3xl flex flex-col items-center justify-center p-6 text-center">
-                    <div class="text-7xl mb-6 filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.1)]">${item.icon}</div>
-                    <h3 class="text-xl font-black mb-2 uppercase tracking-tight text-slate-800">${item.name}</h3>
-                    <div class="h-1 w-8 bg-yellow-500 rounded-full mb-3"></div>
-                    <span class="text-yellow-600 font-mono font-bold text-lg">${item.price}</span>
-                </div>
-            `;
-            grid.appendChild(card);
+        items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = "product-card w-48 h-64 cursor-pointer";
+            div.onclick = function() { this.classList.toggle('zoom-focus'); };
+            div.innerHTML = `
+                <div class="product-inner glass-light h-full w-full rounded-2xl flex flex-col items-center justify-center p-4">
+                    <div class="text-5xl mb-4">${item.i}</div>
+                    <div class="font-bold text-sm text-center uppercase">${item.n}</div>
+                    <div class="text-yellow-600 font-mono mt-2">${item.p}</div>
+                </div>`;
+            grid.appendChild(div);
         });
 
-        let curX = -200;
-        let curY = -200;
+        let posX = -100;
+        let posY = -100;
 
         function enableSensors() {
             if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                DeviceOrientationEvent.requestPermission()
-                    .then(state => { if (state === 'granted') init(); })
-                    .catch(e => alert("Please allow motion sensors in your browser settings."));
-            } else {
-                init();
-            }
+                DeviceOrientationEvent.requestPermission().then(s => { if(s==='granted') init(); });
+            } else { init(); }
             document.getElementById('sensor-gate').style.display = 'none';
         }
 
         function init() {
             window.addEventListener('deviceorientation', (e) => {
-                // Adjust tilt sensitivity
-                let tiltX = e.gamma * 3; 
-                let tiltY = e.beta * 3;
+                // DEADZONE: If tilt is less than 5 degrees, don't move
+                let dx = Math.abs(e.gamma) > 5 ? e.gamma : 0;
+                let dy = Math.abs(e.beta - 45) > 5 ? (e.beta - 45) : 0; // 45 is natural holding angle
 
-                curX = -tiltX - 200;
-                curY = -tiltY - 200;
+                posX -= dx * 0.8; 
+                posY -= dy * 0.8;
 
-                // Smooth transformation
-                grid.style.transform = `translate3d(${curX}px, ${curY}px, 0)`;
+                // Clamp values so you don't scroll into white space
+                posX = Math.max(-1500, Math.min(100, posX));
+                posY = Math.max(-1500, Math.min(100, posY));
+
+                grid.style.transform = `translate3d(${posX}px, ${posY}px, 0)`;
             });
         }
     </script>
