@@ -3,132 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gold Grocery | Active Motion</title>
+    <title>Gold Grocery | Calibrated Tilt</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Faster 3D Rotation (from 8s down to 4s) */
         @keyframes gold-spin {
             0% { transform: rotateY(0deg); }
             100% { transform: rotateY(360deg); }
         }
 
-        .product-card {
-            perspective: 1000px;
-            /* Instant response to tilt */
-            transition: transform 0.1s ease-out; 
+        body { 
+            overflow: hidden; 
+            touch-action: none;
+            background: #f8fafc;
+            margin: 0;
+        }
+
+        #product-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            padding: 200px;
+            transition: transform 0.15s ease-out;
             will-change: transform;
+        }
+
+        .product-card {
+            perspective: 1500px;
+            width: 250px; /* Increased size */
+            height: 350px; /* Increased size */
         }
 
         .product-inner {
             transform-style: preserve-3d;
-            animation: gold-spin 4s linear infinite;
-        }
-
-        .glass-light {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(212, 175, 55, 0.4);
+            animation: gold-spin 5s linear infinite;
+            background: white;
+            border-radius: 30px;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
         }
 
         .zoom-focus {
             position: fixed !important;
             top: 50% !important;
             left: 50% !important;
-            transform: translate(-50%, -50%) scale(2.2) !important;
+            transform: translate(-50%, -50%) scale(1.8) !important;
             z-index: 100;
-            background: white !important;
-            box-shadow: 0 0 50px rgba(212, 175, 55, 0.5);
-            border-radius: 20px;
+            animation: none !important;
         }
 
-        body { 
-            overflow: hidden; 
-            touch-action: none;
-            background: #fdfdfd;
-        }
-
-        #product-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            padding: 100px;
-            width: fit-content;
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
         }
     </style>
 </head>
-<body class="text-slate-800">
+<body>
 
-    <div id="sensor-gate" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white">
-        <h1 class="text-2xl font-black text-yellow-600 mb-6 uppercase tracking-tighter">Gold Grocery</h1>
-        <button onclick="enableSensors()" class="bg-yellow-500 text-white px-10 py-4 rounded-full font-bold shadow-lg">
-            START MOTION SENSORS
+    <div id="gate" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white text-center p-6">
+        <div class="text-6xl mb-4">🏆</div>
+        <h1 class="text-3xl font-black text-slate-800 mb-2">GOLD GROCERY</h1>
+        <p class="text-slate-500 mb-8">Hold your phone naturally and tap start.<br>The app will calibrate to your hand.</p>
+        <button onclick="startApp()" class="bg-yellow-500 text-white px-12 py-4 rounded-full font-bold shadow-2xl active:scale-95 transition-transform">
+            START & CALIBRATE
         </button>
     </div>
 
-    <header class="fixed top-0 w-full z-50 glass-light px-6 py-4 flex justify-between items-center shadow-sm">
-        <span class="font-black text-yellow-600 tracking-tighter">GOLD GROCERY</span>
-        <div class="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-1 rounded font-bold">TILT MODE</div>
+    <header class="fixed top-0 w-full z-50 glass-nav p-5 flex justify-between items-center">
+        <span class="text-2xl font-black text-yellow-600 tracking-tighter">GOLD MARKET</span>
+        <div id="status" class="text-[10px] font-bold text-slate-400">WAITING...</div>
     </header>
 
-    <main class="h-screen w-screen overflow-hidden bg-slate-50">
-        <div id="product-grid" style="transform: translate3d(0px, 0px, 0px);">
+    <main class="h-screen w-screen overflow-hidden">
+        <div id="product-grid">
             </div>
     </main>
 
-    <footer class="fixed bottom-0 w-full glass-light py-2 text-center z-50 text-[10px] font-bold text-slate-400">
-        DESIGNED BY <span class="text-yellow-600">YOUR NAME</span>
+    <footer class="fixed bottom-0 w-full glass-nav p-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+        Designed by <span class="text-yellow-600">Your Name</span>
     </footer>
 
     <script>
-        const icons = ["🍎","🍌","🍯","🥛","🍞","🥚","🍇","💧","🧀","🧂","🍐","🍱","🍓","🥑","🍍","🥥"];
-        const grid = document.getElementById('product-grid');
+        const items = [
+            "🍎", "🍌", "🍯", "🥛", "🍞", "🥚", "🍇", "💧", 
+            "🧀", "🧂", "🍐", "🍱", "🍓", "🥑", "🍍", "🥥"
+        ];
         
-        // Build 16 products
-        icons.forEach((icon, index) => {
-            const div = document.createElement('div');
-            div.className = "product-card w-40 h-56 cursor-pointer";
-            div.onclick = function() { this.classList.toggle('zoom-focus'); };
-            div.innerHTML = `
-                <div class="product-inner glass-light h-full w-full rounded-xl flex flex-col items-center justify-center shadow-md">
-                    <div class="text-5xl mb-3">${icon}</div>
-                    <div class="text-[10px] font-black opacity-50 uppercase">Gold Item #${index+1}</div>
-                    <div class="text-yellow-600 font-bold">$${(Math.random()*20).toFixed(2)}</div>
+        const grid = document.getElementById('product-grid');
+        let baseAlpha = 0, baseBeta = 0, baseGamma = 0;
+        let isCalibrated = false;
+        let curX = 0, curY = 0;
+
+        // Build Large Cards
+        items.forEach((icon, i) => {
+            const card = document.createElement('div');
+            card.className = "product-card";
+            card.onclick = function() { this.classList.toggle('zoom-focus'); };
+            card.innerHTML = `
+                <div class="product-inner">
+                    <div class="text-8xl mb-6">${icon}</div>
+                    <div class="text-xl font-black text-slate-800 uppercase">Premium Item</div>
+                    <div class="text-yellow-600 font-mono text-2xl font-bold mt-2">$${(10 + i).toFixed(2)}</div>
                 </div>`;
-            grid.appendChild(div);
+            grid.appendChild(card);
         });
 
-        let posX = 0;
-        let posY = 0;
-        let active = false;
-
-        function enableSensors() {
+        async function startApp() {
             if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                DeviceOrientationEvent.requestPermission().then(s => { if(s==='granted') { active = true; init(); } });
-            } else { active = true; init(); }
-            document.getElementById('sensor-gate').style.display = 'none';
+                const res = await DeviceOrientationEvent.requestPermission();
+                if (res === 'granted') run();
+            } else {
+                run();
+            }
         }
 
-        function init() {
+        function run() {
+            document.getElementById('gate').style.display = 'none';
+            document.getElementById('status').innerText = "CALIBRATED";
+            
             window.addEventListener('deviceorientation', (e) => {
-                if(!active) return;
+                // The first event sets the "Zero Point"
+                if (!isCalibrated) {
+                    baseBeta = e.beta;
+                    baseGamma = e.gamma;
+                    isCalibrated = true;
+                    return;
+                }
 
-                // Deadzone logic: Only move if tilt is more than 4 degrees
-                // Beta (Y-axis) calibrated to 45 degree holding position
-                let rawX = e.gamma; 
-                let rawY = e.beta - 45; 
+                // Calculate difference from how you were holding it at start
+                let diffX = e.gamma - baseGamma;
+                let diffY = e.beta - baseBeta;
 
-                let moveX = Math.abs(rawX) > 4 ? rawX : 0;
-                let moveY = Math.abs(rawY) > 4 ? rawY : 0;
+                // Deadzone to prevent vibrating
+                if (Math.abs(diffX) < 3) diffX = 0;
+                if (Math.abs(diffY) < 3) diffY = 0;
 
-                // Higher multiplier (1.5) for faster scrolling
-                posX -= moveX * 1.5;
-                posY -= moveY * 1.5;
+                // Move the grid
+                curX -= diffX * 2;
+                curY -= diffY * 2;
 
-                // Keep products within a reasonable viewing area
-                posX = Math.max(-800, Math.min(800, posX));
-                posY = Math.max(-800, Math.min(800, posY));
+                // Boundaries
+                curX = Math.max(-1200, Math.min(1200, curX));
+                curY = Math.max(-1200, Math.min(1200, curY));
 
-                grid.style.transform = `translate3d(${posX}px, ${posY}px, 0)`;
+                grid.style.transform = `translate3d(${curX}px, ${curY}px, 0)`;
             });
         }
     </script>
