@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gold Market | Voice AI Omkar</title>
+    <title>Gold Market | Voice Bot AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes gold-spin { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
-        @keyframes listening { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 1; } }
-
+        @keyframes wave { 0%, 100% { height: 10px; } 50% { height: 40px; } }
+        
         body { background: #fdfdfd; margin: 0; font-family: sans-serif; overflow-x: hidden; }
         
         #product-grid {
@@ -25,16 +25,17 @@
             border: 1px solid #eee;
             padding: 20px 10px;
             text-align: center;
-            transition: all 0.5s ease;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .search-highlight {
+        .search-focus {
             border: 4px solid #eab308 !important;
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(234, 179, 8, 0.4);
+            transform: scale(1.15) rotate(2deg);
+            z-index: 10;
         }
 
-        #voice-overlay {
+        /* Voice Bot Overlay */
+        #bot-overlay {
             display: none;
             position: fixed;
             inset: 0;
@@ -45,135 +46,150 @@
             justify-content: center;
         }
 
-        .mic-icon {
-            width: 80px;
-            height: 80px;
-            background: #eab308;
-            border-radius: 50%;
+        .voice-wave {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: white;
-            animation: listening 1.5s infinite;
+            gap: 5px;
+            height: 50px;
+        }
+
+        .bar {
+            width: 6px;
+            background: #eab308;
+            border-radius: 3px;
+            animation: wave 1s infinite ease-in-out;
         }
     </style>
 </head>
 <body class="text-slate-900">
 
-    <div id="voice-overlay">
-        <div class="mic-icon">🎤</div>
-        <h2 class="text-2xl font-black mt-6 uppercase tracking-widest text-yellow-600">Listening...</h2>
-        <p id="speech-status" class="text-slate-400 mt-2 font-bold">Speak the product name</p>
+    <div id="bot-overlay">
+        <div class="voice-wave">
+            <div class="bar" style="animation-delay: 0.1s"></div>
+            <div class="bar" style="animation-delay: 0.2s"></div>
+            <div class="bar" style="animation-delay: 0.3s"></div>
+            <div class="bar" style="animation-delay: 0.4s"></div>
+            <div class="bar" style="animation-delay: 0.5s"></div>
+        </div>
+        <h2 id="bot-text" class="text-xl font-black mt-8 uppercase text-yellow-600 tracking-tighter">AI Assistant Active</h2>
+        <p id="bot-subtext" class="text-slate-400 mt-2 font-bold">Listening...</p>
     </div>
 
     <header class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md p-4 flex justify-between items-center border-b">
         <div class="flex flex-col">
-            <span class="font-black text-yellow-600 text-lg uppercase tracking-tighter">Gold Market</span>
-            <span class="text-[7px] font-bold text-slate-400">SHAKE TO TALK</span>
+            <span class="font-black text-yellow-600 text-lg uppercase">Gold Market</span>
+            <span class="text-[7px] font-bold text-slate-400">SHAKE 2 TIMES TO TALK</span>
         </div>
-        <button onclick="requestAccess()" id="motionBtn" class="bg-black text-white text-[10px] px-5 py-2 rounded-full font-black uppercase tracking-widest">Start Systems</button>
+        <button onclick="requestAccess()" id="mainBtn" class="bg-black text-white text-[10px] px-6 py-2 rounded-full font-black">START AI</button>
     </header>
 
-    <main>
-        <div id="product-grid"></div>
-    </main>
+    <main><div id="product-grid"></div></main>
 
     <footer class="w-full p-10 bg-white border-t text-center">
-        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Developed By</p>
         <p class="text-yellow-600 font-black text-xl">omkargore544</p>
     </footer>
 
     <script>
-        const categories = {
-            Groceries: ["🍎 Apple", "🍌 Banana", "🥛 Milk", "🍞 Bread", "🥚 Egg", "🍯 Honey", "🍇 Grapes", "🧀 Cheese", "🥔 Potato", "🧅 Onion", "🧄 Garlic", "🥕 Carrot", "🍅 Tomato", "🥭 Mango", "🍍 Pineapple", "🍉 Melon", "🍓 Berry", "🥑 Avocado", "🌽 Corn", "🥦 Broccoli"],
-            Electronics: ["📱 iPhone", "💻 Laptop", "🎧 Headphone", "⌚ Watch", "📺 TV", "🎮 Console", "📷 Camera", "🔋 Battery", "🖱️ Mouse", "⌨️ Keyboard", "🔌 Cable", "🎙️ Mic", "💿 Disc", "🖨️ Printer", "📱 Tablet"],
-            Fashion: ["👟 Shoe", "👕 Shirt", "👗 Dress", "👓 Glass", "👜 Bag", "👒 Hat", "💍 Ring", "💄 Makeup", "🧪 Perfume", "🧥 Coat"]
-        };
+        const items = [
+            {n:"iPhone", i:"📱", p:79900}, {n:"Milk", i:"🥛", p:66}, {n:"Apple", i:"🍎", p:150},
+            {n:"Watch", i:"⌚", p:25000}, {n:"Bread", i:"🍞", p:45}, {n:"Honey", i:"🍯", p:400},
+            {n:"Laptop", i:"💻", p:85000}, {n:"Shoes", i:"👟", p:3500}, {n:"Grapes", i:"🍇", p:120},
+            {n:"Ring", i:"💍", p:45000}, {n:"Banana", i:"🍌", p:60}, {n:"Headphones", i:"🎧", p:5000}
+        ];
 
         const grid = document.getElementById('product-grid');
-        const allItems = [];
-
-        Object.entries(categories).forEach(([cat, list]) => {
-            list.forEach(item => {
-                const name = item.split(' ')[1];
-                const icon = item.split(' ')[0];
-                const price = Math.floor(Math.random() * 2000) + 50;
-                allItems.push({ name, icon, price });
-
-                const div = document.createElement('div');
-                div.className = "product-card";
-                div.id = `prod-${name.toLowerCase()}`;
-                div.innerHTML = `
-                    <div class="text-5xl my-4" style="animation: gold-spin 6s linear infinite">${icon}</div>
-                    <div class="font-bold text-[10px] text-slate-400 uppercase">${name}</div>
-                    <div class="text-lg font-black text-slate-800">₹${price.toLocaleString('en-IN')}</div>
-                `;
-                grid.appendChild(div);
-            });
+        items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = "product-card";
+            div.id = `item-${item.n.toLowerCase()}`;
+            div.innerHTML = `
+                <div class="text-6xl my-4" style="animation: gold-spin 6s linear infinite">${item.i}</div>
+                <div class="font-bold text-xs text-slate-400 uppercase">${item.n}</div>
+                <div class="text-lg font-black text-slate-900">₹${item.p.toLocaleString('en-IN')}</div>
+            `;
+            grid.appendChild(div);
         });
 
         let active = false;
-        let lastX, lastY, lastZ;
+        let shakeCount = 0;
+        let lastShakeTime = 0;
 
         async function requestAccess() {
             if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                const res1 = await DeviceOrientationEvent.requestPermission();
-                const res2 = await DeviceMotionEvent.requestPermission();
-                if (res1 === 'granted' && res2 === 'granted') start();
-            } else { start(); }
+                await DeviceOrientationEvent.requestPermission();
+                await DeviceMotionEvent.requestPermission();
+            }
+            active = true;
+            document.getElementById('mainBtn').innerText = "AI ONLINE";
+            document.getElementById('mainBtn').style.background = "#22c55e";
+            initSensors();
         }
 
-        function start() {
-            active = true;
-            document.getElementById('motionBtn').innerText = "AI ACTIVE";
-            document.getElementById('motionBtn').style.backgroundColor = "#22c55e";
-
+        function initSensors() {
+            // Shake Detection (Detect 2 shakes)
             window.addEventListener('devicemotion', (e) => {
                 let acc = e.accelerationIncludingGravity;
-                let deltaX = Math.abs(acc.x - lastX);
-                if (deltaX > 25) startVoiceSearch();
-                lastX = acc.x;
+                if (Math.abs(acc.x) > 20) {
+                    let now = Date.now();
+                    if (now - lastShakeTime > 500) {
+                        shakeCount++;
+                        lastShakeTime = now;
+                        if (shakeCount >= 2) {
+                            shakeCount = 0;
+                            startVoiceBot();
+                        }
+                    }
+                }
             });
 
+            // Tilt Scroll
             window.addEventListener('deviceorientation', (e) => {
-                let tiltY = (e.beta - 45) * 0.4;
-                window.scrollBy(0, tiltY);
+                window.scrollBy(0, (e.beta - 45) * 0.4);
             });
         }
 
-        function startVoiceSearch() {
-            const overlay = document.getElementById('voice-overlay');
-            const status = document.getElementById('speech-status');
-            overlay.style.display = 'flex';
+        // --- VOICE BOT LOGIC ---
+        const synth = window.speechSynthesis;
+        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const rec = new Recognition();
+        rec.lang = 'en-IN';
 
-            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.lang = 'en-IN';
+        function speak(text, callback) {
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.onend = callback;
+            synth.speak(utter);
+        }
+
+        function startVoiceBot() {
+            if (synth.speaking) return;
             
-            recognition.onstart = () => { status.innerText = "I'm Listening..."; };
+            const overlay = document.getElementById('bot-overlay');
+            overlay.style.display = 'flex';
             
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript.toLowerCase();
-                overlay.style.display = 'none';
-                searchProduct(transcript);
+            speak("Namaste! Which product are you looking for?", () => {
+                rec.start();
+            });
+
+            rec.onresult = (event) => {
+                const query = event.results[0][0].transcript.toLowerCase();
+                document.getElementById('bot-subtext').innerText = "Searching for: " + query;
+                
+                const found = items.find(i => query.includes(i.n.toLowerCase()));
+                
+                if (found) {
+                    speak("I found " + found.n + " for you.", () => {
+                        overlay.style.display = 'none';
+                        const el = document.getElementById(`item-${found.n.toLowerCase()}`);
+                        document.querySelectorAll('.product-card').forEach(c => c.classList.remove('search-focus'));
+                        el.classList.add('search-focus');
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    });
+                } else {
+                    speak("Sorry, I don't have that item.", () => { overlay.style.display = 'none'; });
+                }
             };
 
-            recognition.onerror = () => { overlay.style.display = 'none'; };
-            recognition.start();
-        }
-
-        function searchProduct(query) {
-            // Remove previous highlights
-            document.querySelectorAll('.product-card').forEach(c => c.classList.remove('search-highlight'));
-            
-            const target = allItems.find(item => query.includes(item.name.toLowerCase()));
-            if (target) {
-                const el = document.getElementById(`prod-${target.name.toLowerCase()}`);
-                el.classList.add('search-highlight');
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            } else {
-                alert("Sorry, I couldn't find " + query);
-            }
+            rec.onerror = () => { overlay.style.display = 'none'; };
         }
     </script>
 </body>
